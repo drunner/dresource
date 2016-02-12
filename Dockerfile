@@ -14,9 +14,11 @@ RUN adduser -S -u 22022 -G drgroup -g '' druser
 
 # add in the assets.
 COPY ["./drunner","/drunner"]
+COPY ["./ansible","/ansible"]
 COPY ["./usrlocalbin","/usr/local/bin/"]
 RUN chmod a+rx -R /usr/local/bin  &&  \
     chmod a-w -R /drunner
+    chmod a-w -R /ansible
 
 # lock in druser.
 USER druser

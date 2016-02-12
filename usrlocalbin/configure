@@ -1,6 +1,6 @@
 #!/bin/bash
 set -o nounset
 
-echo username="$1" > /config/config.sh
-echo aws_access_key="$2" >> /config/config.sh
-echo aws_secret_key="$3" >> /config/config.sh
+echo USERNAME="$1" > /config/config.sh
+echo AWS_ACCESS_KEY_ID="$2" >> /config/config.sh
+echo AWS_SECRET_KEY_ID="$3" >> /config/config.sh

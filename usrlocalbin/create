@@ -2,4 +2,5 @@
 set -o nounset
 
 source /config/config.sh
-echo "Create $1 with key $aws_access_key, secret $aws_secret_key"
+
+ansible-playbook /ansible/createS3 --extra-vars '{"username" : "$USERNAME", "s3_name" : "$1"}'
