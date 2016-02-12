@@ -41,8 +41,11 @@ SYNOPSIS
    ${CODE_S}${SERVICENAME} help${CODE_E}
       This help.
    
-   ${CODE_S}${SERVICENAME} config${CODE_E}
+   ${CODE_S}${SERVICENAME} configure USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY${CODE_E}
       Configure dResource.
+  
+   ${CODE_S}${SERVICENAME} create RESOURCE_FILE${CODE_E}
+      Creates resources specified in RESOURCE_FILE.
    
 DESCRIPTION
    Helpers for creating AWS resources. Built from ${IMAGENAME}.
@@ -119,7 +122,16 @@ function main {
          #--- custom commands
 
          configure)
+            shift
+            [ "$#" -eq 3 ] || die "dresource configure USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY"
+            dockerrun configure $1 $2 $3
             ;;
+            
+         create)
+            shift
+             [ "$#" -eq 1 ] || die "dresource create RESOURCE"
+            dockerrun create $1
+           ;;
             
          #--- unrecognised commands
 
