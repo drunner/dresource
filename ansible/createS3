@@ -2,3 +2,4 @@
 - name: Create S3 Bucket
 s3:
     name: "{{ username }}-{{ s3_name }}"
+    delegate_to: localhost
