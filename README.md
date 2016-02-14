@@ -29,4 +29,4 @@ The Resource List File is a JSON file with the following format:
     ]
 }
 ```
-Note that all resources have '<<Username>>-<<Projectname>>-' prepended to them 
+Note that all resources have 'Username-Projectname-' prepended to them 
