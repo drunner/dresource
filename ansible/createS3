@@ -4,4 +4,4 @@
   tasks:
     - name: Create bucket
       s3_bucket:
-        name: "{{ username }}_{{ s3_name }}"
+        name: "{{ lookup('env', 'AWS_USERNAME') }}_{{ s3_name }}"
