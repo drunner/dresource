@@ -1,5 +1,7 @@
 ---
-- name: Create S3 Bucket
-s3:
-    name: "{{ username }}-{{ s3_name }}"
-    delegate_to: localhost
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Create bucket
+      s3_bucket:
+        name: "{{ username }}_{{ s3_name }}"
