@@ -3,4 +3,4 @@ set -o nounset
 
 source /config/config.sh
 
-ansible-playbook -i /ansible/inventory /ansible/createS3 --extra-vars "{\"s3_name\" : \"$1\"}"
+ansible-playbook -i /ansible/inventory /ansible/createResources

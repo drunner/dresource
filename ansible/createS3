@@ -1,7 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  tasks:
-    - name: Create bucket
-      s3_bucket:
-        name: "{{ lookup('env', 'AWS_USERNAME') }}_{{ s3_name }}"
