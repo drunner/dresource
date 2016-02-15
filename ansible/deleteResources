@@ -10,29 +10,20 @@
     - name: Parse resource file
       set_fact: createList="{{ createFile.stdout | from_json }}"
 
-#    - name: List existing S3 resources
-#      command: aws s3api list-buckets --query 'Buckets[].Name'
-#      register: s3List
-#      changed_when: False
-      
-#    - debug: msg="{{ item }}"
-#      when:  item | match("{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-")
-#      with_items:
-#        s3List.stdout
-
-    - name: Build S3 Buckets
+    - name: Delete S3 Buckets
       s3_bucket:
         name: "{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-{{ item.name }}"
         region: "{{ item.region | default('us-east-1') }}"
+        state: absent
+        force: yes
       with_items:
         "{{ createList.s3 | default([]) }}"
  
-    - name: Build DynamoDB Tables
+    - name: Delete DynamoDB Tables
       dynamodb_table:
         name: "{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-{{ item.name }}"
         region: "{{ item.region | default('us-east-1') }}"
         hash_key_name: "{{ item.hash_key_name }}"
-        read_capacity: "{{ item.read_capacity | default(5) }}"
-        write_capacity: "{{ item.write_capacity | default(5) }}"
+        state: absent
       with_items:
         "{{ createList.dynamodb | default([]) }}"
