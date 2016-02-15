@@ -64,7 +64,7 @@ function dockerrun {
 
 function dockerrunwithvolumes {
    local RVAL=0
-   docker run "${COMMANDOPTS[@]}" --name="${SERVICENAME}-${COMMAND}" -h "${HOSTNAME}" "${DOCKEROPTS[@]}" $1 "${IMAGENAME}" "$2"
+   docker run "${COMMANDOPTS[@]}" --name="${SERVICENAME}-${COMMAND}" -h "${HOSTNAME}" "${DOCKEROPTS[@]}" $1 "${IMAGENAME}" $2
    RVAL=$?
    docker rm "${SERVICENAME}-${COMMAND}" >/dev/null
    [ $RVAL -eq 0 ] || die "${SERVICENAME} ${COMMAND} failed."
@@ -136,13 +136,19 @@ function main {
          create)
             shift
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/config/resourceFile" "create"
+            dockerrunwithvolumes "-v $1:/config/resourceConfigFile" "run createResources"
+           ;;
+            
+         update)
+            shift
+            [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
+            dockerrunwithvolumes "-v $1:/config/resourceConfigFile" "run createResources"
            ;;
            
          delete)
             shift
             [ "$#" -eq 1 ] || die "dresource delete RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/config/resourceFile" "delete"
+            dockerrunwithvolumes "-v $1:/config/resourceConfigFile" "run deleteResources"
            ;;
             
          #--- unrecognised commands

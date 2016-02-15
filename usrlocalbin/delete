@@ -1,6 +1,0 @@
-#!/bin/bash
-set -o nounset
-
-source /config/config.sh
-
-ansible-playbook -i /ansible/inventory /ansible/deleteResources

@@ -4,26 +4,25 @@
   tasks:
     - name: Load resource file
       shell: cat /config/resourceFile
-      register: createFile
+      register: resourceFile
       changed_when: False
 
     - name: Parse resource file
-      set_fact: createList="{{ createFile.stdout | from_json }}"
+      set_fact: resourceList="{{ resourceFile.stdout | from_json }}"
 
     - name: Delete S3 Buckets
       s3_bucket:
-        name: "{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-{{ item.name }}"
-        region: "{{ item.region | default('us-east-1') }}"
+        name: "{{ item }}"
         state: absent
         force: yes
       with_items:
-        "{{ createList.s3 | default([]) }}"
- 
+        "{{ resourceList.s3 | default([]) }}"
+
     - name: Delete DynamoDB Tables
       dynamodb_table:
-        name: "{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-{{ item.name }}"
-        region: "{{ item.region | default('us-east-1') }}"
-        hash_key_name: "{{ item.hash_key_name }}"
+        name: "{{ item }}"
+        region: "{{ resourceList.dynamodb[item].region }}"
+        hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
         state: absent
       with_items:
-        "{{ createList.dynamodb | default([]) }}"
+        "{{ resourceList.dynamodb | default([]) }}"

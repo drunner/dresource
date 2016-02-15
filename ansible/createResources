@@ -4,35 +4,50 @@
   tasks:
     - name: Load resource file
       shell: cat /config/resourceFile
-      register: createFile
+      register: resourceFile
       changed_when: False
 
     - name: Parse resource file
-      set_fact: createList="{{ createFile.stdout | from_json }}"
-
-#    - name: List existing S3 resources
-#      command: aws s3api list-buckets --query 'Buckets[].Name'
-#      register: s3List
-#      changed_when: False
-      
-#    - debug: msg="{{ item }}"
-#      when:  item | match("{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-")
-#      with_items:
-#        s3List.stdout
+      set_fact: resourceList="{{ resourceFile.stdout | from_json }}"
 
     - name: Build S3 Buckets
       s3_bucket:
-        name: "{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-{{ item.name }}"
-        region: "{{ item.region | default('us-east-1') }}"
+        name: "{{ item }}"
+        region: "{{ resourceList.s3[item].region }}"
+      when:
+        resourceList.s3[item].state == 'create' or resourceList.s3[item].state == 'update'
       with_items:
-        "{{ createList.s3 | default([]) }}"
+        "{{ resourceList.s3 | default([]) }}"
+
+    - name: Delete S3 Buckets
+      s3_bucket:
+        name: "{{ item }}"
+        state: absent
+        force: yes
+      when:
+        resourceList.s3[item].state == 'delete'
+      with_items:
+        "{{ resourceList.s3 | default([]) }}"
  
     - name: Build DynamoDB Tables
       dynamodb_table:
-        name: "{{ lookup('env', 'AWS_USERNAME') }}-{{ createList.projectname }}-{{ item.name }}"
-        region: "{{ item.region | default('us-east-1') }}"
-        hash_key_name: "{{ item.hash_key_name }}"
-        read_capacity: "{{ item.read_capacity | default(5) }}"
-        write_capacity: "{{ item.write_capacity | default(5) }}"
+        name: "{{ item }}"
+        region: "{{ resourceList.dynamodb[item].region }}"
+        hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
+        read_capacity: "{{ resourceList.dynamodb[item].read_capacity | default(5) }}"
+        write_capacity: "{{ resourceList.dynamodb[item].write_capacity | default(5) }}"
+      when:
+        resourceList.dynamodb[item].state == 'create' or resourceList.dynamodb[item].state == 'update'
       with_items:
-        "{{ createList.dynamodb | default([]) }}"
+        "{{ resourceList.dynamodb | default([]) }}"
+
+    - name: Delete DynamoDB Tables
+      dynamodb_table:
+        name: "{{ item }}"
+        region: "{{ resourceList.dynamodb[item].region }}"
+        hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
+        state: absent
+      when:
+        resourceList.dynamodb[item].state == 'delete'
+      with_items:
+        "{{ resourceList.dynamodb | default([]) }}"
