@@ -6,7 +6,8 @@
       command: buildresource.py {{ lookup('env', 'AWS_USERNAME') }} /resources/resourceConfigFile
       register: inputList
     
-    - set_fact:
+    - name: Parse resource list
+      set_fact:
         resourceList: "{{ inputList.stdout | from_json }}"
     
     - name: Build S3 Buckets
