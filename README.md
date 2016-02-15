@@ -12,21 +12,20 @@ The Resource List File is a JSON file with the following format:
 ```
 {
     "projectname" : "<<Project name (prepended to all resource names)",
-    "s3" : [
-        {
-            "name" : "<<Bucket name>>",
+    "s3" : {
+        "bucket-name": {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
-        }
-    ]
-    "dynamodb" : [
-        {
-            "name" : "<<Table name>>",
+        },
+        "another-bucket": {}
+    }
+    "dynamodb" : {
+        "table-name" : {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
             "hash_key_name" : "<<Hash key name>>",
             "read_capacity" : "<<Read capacity (defaults to 5 if undefined)>>",
             "write_capacity" : "<<Write capacity (defaults to 5 if undefined)>>"
         }
-    ]
+    }
 }
 ```
 Note that all resources have 'Username-Projectname-' prepended to them 
