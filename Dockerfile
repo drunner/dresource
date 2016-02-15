@@ -19,4 +19,4 @@ RUN chmod a+rx -R /usr/local/bin  &&  \
 USER druser
 
 # expose volume
-VOLUME /config
+VOLUME /config /resources

@@ -3,6 +3,4 @@ set -o nounset
 
 source /config/config.sh
 
-buildresource.py $AWS_USERNAME /config/resourceConfigFile /config/resourceFile
-
 ansible-playbook -i /ansible/inventory /ansible/$1

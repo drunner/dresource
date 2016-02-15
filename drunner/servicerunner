@@ -136,19 +136,19 @@ function main {
          create)
             shift
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/config/resourceConfigFile" "run createResources"
+            dockerrunwithvolumes "-v $1:/resources/resourceConfigFile" "run createResources.yml"
            ;;
             
          update)
             shift
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/config/resourceConfigFile" "run createResources"
+            dockerrunwithvolumes "-v $1:/resources/resourceConfigFile" "run createResources.yml"
            ;;
            
          delete)
             shift
             [ "$#" -eq 1 ] || die "dresource delete RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/config/resourceConfigFile" "run deleteResources"
+            dockerrunwithvolumes "-v $1:/resources/resourceConfigFile" "run deleteResources.yml"
            ;;
             
          #--- unrecognised commands

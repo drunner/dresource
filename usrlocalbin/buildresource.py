@@ -13,14 +13,13 @@ import os
 # -------------------------------------------------------------
 # Arguments
 # -------------------------------------------------------------
-if len(sys.argv) != 4 or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
+if len(sys.argv) != 3 or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
    print "buildresource.py <USERNAME> <CONFIG FILENAME> <OUTPUT FILENAME>"
    print "Expects environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
    sys.exit()
    
 username = sys.argv[1]
 configFilename = sys.argv[2]
-outputFilename = sys.argv[3]
 
 # -------------------------------------------------------------
 # Configuration
@@ -103,5 +102,4 @@ for region in regions:
 # -------------------------------------------------------------
 # Print out lists
 # -------------------------------------------------------------
-with open(outputFilename, 'w') as outfile:
-    json.dump(resources, outfile)
+print json.dumps(resources)

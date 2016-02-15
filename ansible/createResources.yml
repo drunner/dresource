@@ -2,14 +2,13 @@
 - hosts: localhost
   connection: local
   tasks:
-    - name: Load resource file
-      shell: cat /config/resourceFile
-      register: resourceFile
-      changed_when: False
-
-    - name: Parse resource file
-      set_fact: resourceList="{{ resourceFile.stdout | from_json }}"
-
+    - name: Build resource list
+      command: buildresource.py {{ lookup('env', 'AWS_USERNAME') }} /resources/resourceConfigFile
+      register: inputList
+    
+    - set_fact:
+        resourceList: "{{ inputList.stdout | from_json }}"
+    
     - name: Build S3 Buckets
       s3_bucket:
         name: "{{ item }}"
