@@ -42,30 +42,32 @@ regions = {}
 # -------------------------------------------------------------
 
 # Build dictionary of required S3 buckets
-for bucketName in config['s3']:
-   # Generate full name
-   longName = username + '-' + projectname + '-' + bucketName
-   # Set dictionary values
-   resources['s3'][longName] = config['s3'][bucketName]
-   resources['s3'][longName]['state'] = 'create'
-   # Set default region
-   if not 'region' in resources['s3'][longName]:
-      resources['s3'][longName]['region'] = 'us-east-1'
-   # Record all used regions
-   regions[resources['s3'][longName]['region']] = True
+if 's3' in config:
+   for bucketName in config['s3']:
+      # Generate full name
+      longName = username + '-' + projectname + '-' + bucketName
+      # Set dictionary values
+      resources['s3'][longName] = config['s3'][bucketName]
+      resources['s3'][longName]['state'] = 'create'
+      # Set default region
+      if not 'region' in resources['s3'][longName]:
+         resources['s3'][longName]['region'] = 'us-east-1'
+      # Record all used regions
+      regions[resources['s3'][longName]['region']] = True
 
 # Build dictionary of required DynamoDB tables
-for tableName in config['dynamodb']:
-   # Generate full name
-   longName = username + '-' + projectname + '-' + tableName
-   # Set dictionary values
-   resources['dynamodb'][longName] = config['dynamodb'][tableName]
-   resources['dynamodb'][longName]['state'] = 'create'
-   # Set default region
-   if not 'region' in resources['dynamodb'][longName]:
-      resources['dynamodb'][longName]['region'] = 'us-east-1'
-   # Record all used regions
-   regions[resources['dynamodb'][longName]['region']] = True
+if 'dynamodb' in config:
+   for tableName in config['dynamodb']:
+      # Generate full name
+      longName = username + '-' + projectname + '-' + tableName
+      # Set dictionary values
+      resources['dynamodb'][longName] = config['dynamodb'][tableName]
+      resources['dynamodb'][longName]['state'] = 'create'
+      # Set default region
+      if not 'region' in resources['dynamodb'][longName]:
+         resources['dynamodb'][longName]['region'] = 'us-east-1'
+      # Record all used regions
+      regions[resources['dynamodb'][longName]['region']] = True
 
 # -------------------------------------------------------------
 # Scan S3
