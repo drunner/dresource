@@ -11,7 +11,7 @@ dresource create <<Path to Resource List File>>
 The Resource List File is a JSON file with the following format:
 ```
 {
-    "projectname" : "<<Project name (prepended to all resource names)",
+    "projectname" : "<<Project name>>",
     "s3" : {
         "bucket-name": {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
@@ -28,4 +28,35 @@ The Resource List File is a JSON file with the following format:
     }
 }
 ```
-Note that all resources have 'Username-Projectname-' prepended to them 
+The AWS IAM User is expected to have the following policy:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "dynamodb:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<<USERNAME>>-*",
+                "arn:aws:s3:::<<USERNAME>>-*/*",
+                "arn:aws:dynamodb:*:*:table/<<USERNAME>>-*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListAllMyBuckets",
+                "dynamodb:ListTables"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+```
+All resources created by dresource will have 'username-projectname-' prepended on their names, so they can be identified.
+If you use the special username 'PRODUCTION', then no username is prepended. 

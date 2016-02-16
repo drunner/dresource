@@ -10,44 +10,22 @@
       set_fact:
         resourceList: "{{ inputList.stdout | from_json }}"
     
-    - name: Build S3 Buckets
+    - name: Configure S3 Buckets
       s3_bucket:
         name: "{{ item }}"
         region: "{{ resourceList.s3[item].region }}"
-      when:
-        resourceList.s3[item].state == 'create' or resourceList.s3[item].state == 'update'
+        state: "{{ resourceList.s3[item].state }}"
+        force: yes
       with_items:
         "{{ resourceList.s3 | default([]) }}"
 
-    - name: Delete S3 Buckets
-      s3_bucket:
-        name: "{{ item }}"
-        state: absent
-        force: yes
-      when:
-        resourceList.s3[item].state == 'delete'
-      with_items:
-        "{{ resourceList.s3 | default([]) }}"
- 
-    - name: Build DynamoDB Tables
+    - name: Configure DynamoDB Tables
       dynamodb_table:
         name: "{{ item }}"
         region: "{{ resourceList.dynamodb[item].region }}"
         hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
         read_capacity: "{{ resourceList.dynamodb[item].read_capacity | default(5) }}"
         write_capacity: "{{ resourceList.dynamodb[item].write_capacity | default(5) }}"
-      when:
-        resourceList.dynamodb[item].state == 'create' or resourceList.dynamodb[item].state == 'update'
-      with_items:
-        "{{ resourceList.dynamodb | default([]) }}"
-
-    - name: Delete DynamoDB Tables
-      dynamodb_table:
-        name: "{{ item }}"
-        region: "{{ resourceList.dynamodb[item].region }}"
-        hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
-        state: absent
-      when:
-        resourceList.dynamodb[item].state == 'delete'
+        state: "{{ resourceList.dynamodb[item].state }}"
       with_items:
         "{{ resourceList.dynamodb | default([]) }}"
