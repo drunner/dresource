@@ -40,10 +40,11 @@ SYNOPSIS
       Configure dResource.
   
    ${CODE_S}${SERVICENAME} create RESOURCE_FILE${CODE_E}
-      Creates resources specified in RESOURCE_FILE.
+      Creates and updates resources specified in RESOURCE_FILE.
+      Also deletes any resources that were created but are no longer specified.
    
    ${CODE_S}${SERVICENAME} delete RESOURCE_FILE${CODE_E}
-      Deletes resources specified in RESOURCE_FILE.
+      Deletes all resources for this username and project (specified in RESOURCE_FILE).
    
 DESCRIPTION
    Helpers for creating AWS resources. Built from ${IMAGENAME}.
@@ -134,12 +135,6 @@ function main {
             ;;
             
          create)
-            shift
-            [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
-            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "run createResources.yml"
-           ;;
-            
-         update)
             shift
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
             dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "run createResources.yml"

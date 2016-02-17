@@ -21,12 +21,17 @@ if len(sys.argv) != 3 or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.envir
 username = sys.argv[1]
 configFilename = sys.argv[2]
 
+if username == 'PRODUCTION':
+   username = ''
+else:
+   username += '-'
+   
 # -------------------------------------------------------------
 # Configuration
 # -------------------------------------------------------------
 with open(configFilename) as config_file:    
     config = json.load(config_file)
-projectname = config["projectname"]
+prefix = username + config['projectname'] + '-'
 
 # -------------------------------------------------------------
 # Data structure
@@ -45,10 +50,10 @@ regions = {}
 if 's3' in config:
    for bucketName in config['s3']:
       # Generate full name
-      longName = username + '-' + projectname + '-' + bucketName
+      longName = prefix + bucketName
       # Set dictionary values
       resources['s3'][longName] = config['s3'][bucketName]
-      resources['s3'][longName]['state'] = 'create'
+      resources['s3'][longName]['state'] = 'present'
       # Set default region
       if not 'region' in resources['s3'][longName]:
          resources['s3'][longName]['region'] = 'us-east-1'
@@ -59,10 +64,10 @@ if 's3' in config:
 if 'dynamodb' in config:
    for tableName in config['dynamodb']:
       # Generate full name
-      longName = username + '-' + projectname + '-' + tableName
+      longName = prefix + tableName
       # Set dictionary values
       resources['dynamodb'][longName] = config['dynamodb'][tableName]
-      resources['dynamodb'][longName]['state'] = 'create'
+      resources['dynamodb'][longName]['state'] = 'present'
       # Set default region
       if not 'region' in resources['dynamodb'][longName]:
          resources['dynamodb'][longName]['region'] = 'us-east-1'
@@ -77,11 +82,9 @@ if 'dynamodb' in config:
 s3Conn = S3Connection(os.environ['AWS_ACCESS_KEY_ID'], os.environ['AWS_SECRET_ACCESS_KEY'])
 existingBuckets = s3Conn.get_all_buckets()
 for bucket in existingBuckets:
-   if re.match(username + '-' + projectname + '-', bucket.name):
-      if (bucket.name in resources['s3']):
-         resources['s3'][bucket.name]['state'] = 'update'
-      else:
-         resources['s3'][bucket.name] = { 'state' : 'delete' }
+   if re.match(prefix, bucket.name):
+      if (not bucket.name in resources['s3']):
+         resources['s3'][bucket.name] = { 'state' : 'absent' }
 
 # -------------------------------------------------------------
 # Scan DynamoDB
@@ -95,11 +98,9 @@ for region in regions:
            aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY'])
    existingTables = dyConn.list_tables()
    for table in existingTables["TableNames"]:
-      if re.match(username + '-' + projectname + '-', table):
-         if (table in resources['dynamodb']):
-            resources['dynamodb'][table]['state'] = 'update'
-         else:
-            resources['dynamodb'][table] = { 'state' : 'delete' }
+      if re.match(prefix, table):
+         if (not table in resources['dynamodb']):
+            resources['dynamodb'][table] = { 'state' : 'absent' }
 
 # -------------------------------------------------------------
 # Print out lists
