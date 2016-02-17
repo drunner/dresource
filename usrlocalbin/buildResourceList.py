@@ -14,7 +14,7 @@ import os
 # Arguments
 # -------------------------------------------------------------
 if len(sys.argv) != 3 or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
-   print "buildresource.py <USERNAME> <CONFIG FILENAME> <OUTPUT FILENAME>"
+   print "buildResourceList.py <USERNAME> <CONFIG FILENAME>"
    print "Expects environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
    sys.exit()
    
@@ -34,11 +34,13 @@ with open(configFilename) as config_file:
 prefix = username + config['projectname'] + '-'
 
 # -------------------------------------------------------------
-# Data structure
+# Data structures
 # -------------------------------------------------------------
 resources = {}
 resources['s3'] = {}
 resources['dynamodb'] = {}
+
+shortResources = {}
 
 regions = {}
 
@@ -57,8 +59,16 @@ if 's3' in config:
       # Set default region
       if not 'region' in resources['s3'][longName]:
          resources['s3'][longName]['region'] = 'us-east-1'
+      
       # Record all used regions
       regions[resources['s3'][longName]['region']] = True
+      
+      # Record short form of resource for writing out
+      if not 's3' in shortResources:
+         shortResources['s3'] = {}
+      shortResources['s3'][bucketName] = {}
+      shortResources['s3'][bucketName]['name'] = longName
+      shortResources['s3'][bucketName]['region'] = resources['s3'][longName]['region']
 
 # Build dictionary of required DynamoDB tables
 if 'dynamodb' in config:
@@ -71,14 +81,22 @@ if 'dynamodb' in config:
       # Set default region
       if not 'region' in resources['dynamodb'][longName]:
          resources['dynamodb'][longName]['region'] = 'us-east-1'
+
       # Record all used regions
       regions[resources['dynamodb'][longName]['region']] = True
+      
+      # Record short form of resource for writing out
+      if not 'dynamodb' in shortResources:
+         shortResources['dynamodb'] = {}
+      shortResources['dynamodb'][tableName] = {}
+      shortResources['dynamodb'][tableName]['name'] = longName
+      shortResources['dynamodb'][tableName]['region'] = resources['dynamodb'][longName]['region']
 
 # -------------------------------------------------------------
 # Scan S3
 # -------------------------------------------------------------
 
-# Use list of existing buckets to work out what to keep, what to delete
+# Use list of existing buckets to work out what to delete
 s3Conn = S3Connection(os.environ['AWS_ACCESS_KEY_ID'], os.environ['AWS_SECRET_ACCESS_KEY'])
 existingBuckets = s3Conn.get_all_buckets()
 for bucket in existingBuckets:
@@ -90,7 +108,7 @@ for bucket in existingBuckets:
 # Scan DynamoDB
 # -------------------------------------------------------------
 
-# Use list of existing tables in the regions we care about to work out what to keep, what to delete
+# Use list of existing tables in the regions we care about to work out what to delete
 for region in regions:
    dyConn = boto.dynamodb2.connect_to_region(
            region,
@@ -103,6 +121,12 @@ for region in regions:
             resources['dynamodb'][table] = { 'state' : 'absent' }
 
 # -------------------------------------------------------------
-# Print out lists
+# Write out smaller list for app configuration
+# -------------------------------------------------------------
+#with open('/resources/resources.json', 'w') as outfile:
+#    json.dump(shortResources, outfile)
+
+# -------------------------------------------------------------
+# Print out full list for ansible to use
 # -------------------------------------------------------------
 print json.dumps(resources)

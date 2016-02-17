@@ -3,8 +3,9 @@
   connection: local
   tasks:
     - name: Build resource list
-      command: buildresource.py {{ lookup('env', 'AWS_USERNAME') }} /resources/resourceConfigFile
+      command: buildResourceList.py {{ lookup('env', 'AWS_USERNAME') }} /resources/resources.cfg
       register: inputList
+      changed_when: False
     
     - name: Parse resource list
       set_fact:
