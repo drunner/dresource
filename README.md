@@ -60,3 +60,5 @@ The AWS IAM User is expected to have the following policy:
 ```
 All resources created by dresource will have 'username-projectname-' prepended on their names, so they can be identified.
 If you use the special username 'PRODUCTION', then no username is prepended. 
+
+Note that if you change the name of a resource, the existing resource will be deleted and a new resource created with the new name.  Data will not be preserved.
