@@ -137,13 +137,13 @@ function main {
          create)
             shift
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/resources/resourceConfigFile" "run.py createResources.yml"
+            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "run.py createResources.yml"
            ;;
            
          delete)
             shift
             [ "$#" -eq 1 ] || die "dresource delete RESOURCE_FILE"
-            dockerrunwithvolumes "-v $1:/resources/resourceConfigFile" "run.py deleteResources.yml"
+            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "run.py deleteResources.yml"
            ;;
             
          #--- unrecognised commands
