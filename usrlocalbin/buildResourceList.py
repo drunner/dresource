@@ -13,25 +13,33 @@ import os
 # -------------------------------------------------------------
 # Arguments
 # -------------------------------------------------------------
-if len(sys.argv) != 3 or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
-   print "buildResourceList.py <USERNAME> <CONFIG FILENAME>"
-   print "Expects environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
+if len(sys.argv) != 1:
+   print "buildResourceList.py"
    sys.exit()
-   
-username = sys.argv[1]
-configFilename = sys.argv[2]
 
+configFilename = '/config/config.json'
+resourceConfigFilename = '/resources/resourceConfigFile'
+   
+# -------------------------------------------------------------
+# Load Configuration
+# -------------------------------------------------------------
+config = {}
+if not os.path.isfile(configFilename):
+   print "dresource needs to be configured";
+   sys.exit()
+
+with open(configFilename) as config_file:    
+    config = json.load(config_file)
+
+username = config['aws']['username']
 if username == 'PRODUCTION':
    username = ''
 else:
    username += '-'
-   
-# -------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------
-with open(configFilename) as config_file:    
-    config = json.load(config_file)
-prefix = username + config['projectname'] + '-'
+
+with open(resourceConfigFilename) as resource_config_file:    
+    resourceConfig = json.load(resource_config_file)
+prefix = username + resourceConfig['projectname'] + '-'
 
 # -------------------------------------------------------------
 # Data structures
@@ -49,12 +57,12 @@ regions = {}
 # -------------------------------------------------------------
 
 # Build dictionary of required S3 buckets
-if 's3' in config:
-   for bucketName in config['s3']:
+if 's3' in resourceConfig:
+   for bucketName in resourceConfig['s3']:
       # Generate full name
       longName = prefix + bucketName
       # Set dictionary values
-      resources['s3'][longName] = config['s3'][bucketName]
+      resources['s3'][longName] = resourceConfig['s3'][bucketName]
       resources['s3'][longName]['state'] = 'present'
       # Set default region
       if not 'region' in resources['s3'][longName]:
@@ -71,12 +79,12 @@ if 's3' in config:
       shortResources['s3'][bucketName]['region'] = resources['s3'][longName]['region']
 
 # Build dictionary of required DynamoDB tables
-if 'dynamodb' in config:
-   for tableName in config['dynamodb']:
+if 'dynamodb' in resourceConfig:
+   for tableName in resourceConfig['dynamodb']:
       # Generate full name
       longName = prefix + tableName
       # Set dictionary values
-      resources['dynamodb'][longName] = config['dynamodb'][tableName]
+      resources['dynamodb'][longName] = resourceConfig['dynamodb'][tableName]
       resources['dynamodb'][longName]['state'] = 'present'
       # Set default region
       if not 'region' in resources['dynamodb'][longName]:
@@ -97,7 +105,7 @@ if 'dynamodb' in config:
 # -------------------------------------------------------------
 
 # Use list of existing buckets to work out what to delete
-s3Conn = S3Connection(os.environ['AWS_ACCESS_KEY_ID'], os.environ['AWS_SECRET_ACCESS_KEY'])
+s3Conn = S3Connection(config['aws']['aws_access_key'], config['aws']['aws_secret_key'])
 existingBuckets = s3Conn.get_all_buckets()
 for bucket in existingBuckets:
    if re.match(prefix, bucket.name):
@@ -112,8 +120,8 @@ for bucket in existingBuckets:
 for region in regions:
    dyConn = boto.dynamodb2.connect_to_region(
            region,
-           aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID'],
-           aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY'])
+           aws_access_key_id = config['aws']['aws_access_key'],
+           aws_secret_access_key = config['aws']['aws_secret_key'])
    existingTables = dyConn.list_tables()
    for table in existingTables["TableNames"]:
       if re.match(prefix, table):

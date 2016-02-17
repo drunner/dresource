@@ -130,20 +130,20 @@ function main {
 
          configure)
             shift
-            [ "$#" -eq 3 ] || die "dresource configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY\nOR\ndresource configure rds HOST USERNAME PASSWORD"
+            [ "$#" -eq 4 ] || die "dresource configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY\nOR\ndresource configure rds HOST USERNAME PASSWORD"
             dockerrun configure.py $@
             ;;
             
          create)
             shift
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
-            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "run.py createResources.yml"
+            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "ansible-playbook -i /ansible/inventory /ansible/createResources.yml"
            ;;
            
          delete)
             shift
             [ "$#" -eq 1 ] || die "dresource delete RESOURCE_FILE"
-            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "run.py deleteResources.yml"
+            dockerrunwithvolumes "-v $(realpath $1):/resources/resourceConfigFile" "ansible-playbook -i /ansible/inventory /ansible/deleteResources.yml"
            ;;
             
          #--- unrecognised commands

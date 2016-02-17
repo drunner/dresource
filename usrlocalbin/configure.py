@@ -10,7 +10,7 @@ import os.path
 # -------------------------------------------------------------
 # Arguments
 # -------------------------------------------------------------
-if len(sys.argv) != 4 or (sys.argv[1] != 'aws' and sys.argv[1] != 'rds'):
+if len(sys.argv) != 5 or (sys.argv[1] != 'aws' and sys.argv[1] != 'rds'):
    print "configure.py aws <USERNAME> <AWS_ACCESS_KEY> <AWS_SECRET_KEY>"
    print "   or"
    print "configure.py rds <HOST> <USERNAME> <PASSWORD>"

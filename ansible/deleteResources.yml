@@ -1,9 +1,11 @@
 ---
 - hosts: localhost
   connection: local
+  vars:
+    - config: "{{ lookup('file', '/config/config.json') | from_json }}"
   tasks:
     - name: Build resource list
-      command: buildResourceList.py {{ lookup('env', 'AWS_USERNAME') }} /resources/resources.cfg
+      command: buildResourceList.py
       register: inputList
       changed_when: False
     
@@ -13,6 +15,8 @@
         
     - name: Delete S3 Buckets
       s3_bucket:
+        aws_access_key: "{{ config.aws.aws_access_key }}"
+        aws_secret_key: "{{ config.aws.aws_secret_key }}"
         name: "{{ item }}"
         state: absent
         force: yes
@@ -21,6 +25,8 @@
 
     - name: Delete DynamoDB Tables
       dynamodb_table:
+        aws_access_key: "{{ config.aws.aws_access_key }}"
+        aws_secret_key: "{{ config.aws.aws_secret_key }}"
         name: "{{ item }}"
         region: "{{ resourceList.dynamodb[item].region }}"
         hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
