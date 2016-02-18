@@ -105,14 +105,17 @@ if 'dynamodb' in resourceConfig:
 
 # Build dictionary of required MySQL Schema
 if 'mysql' in resourceConfig:
+   if not 'mysql' in config:
+      die 'dresource is not configured to control mysql'
+      
    for schemaName in resourceConfig['mysql']:
       # Generate full name
       longName = prefix + schemaName
       # Set dictionary values
       resources['mysql_schema'][longName] = {}
-      resources['mysql_schema'][longName]['login_host'] = config['rds']['host']
-      resources['mysql_schema'][longName]['login_user'] = config['rds']['user']
-      resources['mysql_schema'][longName]['login_password'] = config['rds']['password']
+      resources['mysql_schema'][longName]['login_host'] = config['mysql']['host']
+      resources['mysql_schema'][longName]['login_user'] = config['mysql']['user']
+      resources['mysql_schema'][longName]['login_password'] = config['mysql']['password']
       resources['mysql_schema'][longName]['state'] = 'present'
       resources['mysql_schema'][longName]['schema_file'] = resourceConfig['mysql'][schemaName]['schema_file']
       
@@ -134,9 +137,9 @@ if 'mysql' in resourceConfig:
             
             # Set dictionary values
             resources['mysql_user'][longName] = {}
-            resources['mysql_user'][longName]['login_host'] = config['rds']['host']
-            resources['mysql_user'][longName]['login_user'] = config['rds']['user']
-            resources['mysql_user'][longName]['login_password'] = config['rds']['password']
+            resources['mysql_user'][longName]['login_host'] = config['mysql']['host']
+            resources['mysql_user'][longName]['login_user'] = config['mysql']['user']
+            resources['mysql_user'][longName]['login_password'] = config['mysql']['password']
             resources['mysql_user'][longName]['state'] = 'present'
             resources['mysql_user'][longName]['password'] = password
             resources['mysql_user'][longName]['privileges'] = resourceConfig['mysql'][schemaName]['users'][userName]['privileges']

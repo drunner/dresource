@@ -36,7 +36,7 @@ SYNOPSIS
    ${CODE_S}${SERVICENAME} help${CODE_E}
       This help.
    
-   ${CODE_S}${SERVICENAME} configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY or configure rds HOST USERNAME PASSWORD${CODE_E}
+   ${CODE_S}${SERVICENAME} configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY or configure mysql HOST USERNAME PASSWORD${CODE_E}
       Configure dResource.
   
    ${CODE_S}${SERVICENAME} create CONFIGURATION_PATH${CODE_E}
@@ -130,7 +130,7 @@ function main {
 
          configure)
             shift
-            [ "$#" -eq 4 ] || die "dresource configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY\nOR\ndresource configure rds HOST USERNAME PASSWORD"
+            [ "$#" -eq 4 ] || die "dresource configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY\nOR\ndresource configure mysql HOST USERNAME PASSWORD"
             dockerrun configure.py $@
             ;;
             
