@@ -2,7 +2,7 @@
 FROM drunner/baseimage-alpine
 MAINTAINER drunner
 
-RUN apk add --update bash python py-pip build-base python-dev py-boto && rm -rf /var/cache/apk/*
+RUN apk add --update bash python py-pip build-base python-dev py-boto py-mysqldb && rm -rf /var/cache/apk/*
 RUN pip install --upgrade pip
 RUN pip install awscli ansible
 

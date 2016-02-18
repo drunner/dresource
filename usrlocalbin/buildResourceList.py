@@ -9,6 +9,7 @@ import sys
 import re
 import json
 import os
+from os import urandom
 
 # -------------------------------------------------------------
 # Arguments
@@ -18,7 +19,7 @@ if len(sys.argv) != 1:
    sys.exit()
 
 configFilename = '/config/config.json'
-resourceConfigFilename = '/resources/resourceConfigFile'
+resourceConfigFilename = '/resources/resources.cfg'
    
 # -------------------------------------------------------------
 # Load Configuration
@@ -47,6 +48,8 @@ prefix = username + resourceConfig['projectname'] + '-'
 resources = {}
 resources['s3'] = {}
 resources['dynamodb'] = {}
+resources['mysql_schema'] = {}
+resources['mysql_user'] = {}
 
 shortResources = {}
 
@@ -62,7 +65,7 @@ if 's3' in resourceConfig:
       # Generate full name
       longName = prefix + bucketName
       # Set dictionary values
-      resources['s3'][longName] = resourceConfig['s3'][bucketName]
+      resources['s3'][longName] = resourceConfig['s3'][bucketName].copy()
       resources['s3'][longName]['state'] = 'present'
       # Set default region
       if not 'region' in resources['s3'][longName]:
@@ -84,7 +87,7 @@ if 'dynamodb' in resourceConfig:
       # Generate full name
       longName = prefix + tableName
       # Set dictionary values
-      resources['dynamodb'][longName] = resourceConfig['dynamodb'][tableName]
+      resources['dynamodb'][longName] = resourceConfig['dynamodb'][tableName].copy()
       resources['dynamodb'][longName]['state'] = 'present'
       # Set default region
       if not 'region' in resources['dynamodb'][longName]:
@@ -99,6 +102,52 @@ if 'dynamodb' in resourceConfig:
       shortResources['dynamodb'][tableName] = {}
       shortResources['dynamodb'][tableName]['name'] = longName
       shortResources['dynamodb'][tableName]['region'] = resources['dynamodb'][longName]['region']
+
+# Build dictionary of required MySQL Schema
+if 'mysql' in resourceConfig:
+   for schemaName in resourceConfig['mysql']:
+      # Generate full name
+      longName = prefix + schemaName
+      # Set dictionary values
+      resources['mysql_schema'][longName] = {}
+      resources['mysql_schema'][longName]['login_host'] = config['rds']['host']
+      resources['mysql_schema'][longName]['login_user'] = config['rds']['user']
+      resources['mysql_schema'][longName]['login_password'] = config['rds']['password']
+      resources['mysql_schema'][longName]['state'] = 'present'
+      resources['mysql_schema'][longName]['schema_file'] = resourceConfig['mysql'][schemaName]['schema_file']
+      
+      # Record short form of resource for writing out
+      if not 'mysql_schema' in shortResources:
+         shortResources['mysql_schema'] = {}
+      shortResources['mysql_schema'][schemaName] = {}
+      shortResources['mysql_schema'][schemaName]['name'] = longName
+      
+      # Build dictionary of require MySQL Users
+      if 'users' in resourceConfig['mysql'][schemaName]:
+         for userName in resourceConfig['mysql'][schemaName]['users']:
+            # Generate full name
+            longName = prefix + userName
+            
+            # Generate password
+            chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
+            password = "".join([chars[ord(c) % len(chars)] for c in urandom(30)])
+            
+            # Set dictionary values
+            resources['mysql_user'][longName] = {}
+            resources['mysql_user'][longName]['login_host'] = config['rds']['host']
+            resources['mysql_user'][longName]['login_user'] = config['rds']['user']
+            resources['mysql_user'][longName]['login_password'] = config['rds']['password']
+            resources['mysql_user'][longName]['state'] = 'present'
+            resources['mysql_user'][longName]['password'] = password
+            resources['mysql_user'][longName]['privileges'] = resourceConfig['mysql'][schemaName]['users'][userName]['privileges']
+      
+            # Record short form of resource for writing out
+            if not 'mysql_user' in shortResources:
+               shortResources['mysql_user'] = {}
+            shortResources['mysql_user'][schemaName] = {}
+            shortResources['mysql_user'][schemaName]['name'] = longName
+            shortResources['mysql_user'][schemaName]['password'] = password
+      
 
 # -------------------------------------------------------------
 # Scan S3
@@ -131,8 +180,8 @@ for region in regions:
 # -------------------------------------------------------------
 # Write out smaller list for app configuration
 # -------------------------------------------------------------
-#with open('/resources/resources.json', 'w') as outfile:
-#    json.dump(shortResources, outfile)
+with open('/tmp/resourceOutput.json', 'w') as outfile:
+    json.dump(shortResources, outfile, indent=4, separators=(',', ': '))
 
 # -------------------------------------------------------------
 # Print out full list for ansible to use

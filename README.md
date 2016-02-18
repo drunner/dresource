@@ -5,25 +5,34 @@ dService for creating resources (AWS etc)
 
 ```
 drunner install infmon/dresource 
-dresource configure <<Username>> <<AWS Access key>> <<AWS Secret key>>
+dresource configure aws <<Username>> <<AWS Access key>> <<AWS Secret key>>
 dresource create <<Path to Resource List File>>
 ```
-The Resource List File is a JSON file with the following format:
+The Resource List File is a JSON file with the following format.  Note that MySQL support is untested and unlikely to work at this point:
 ```
 {
     "projectname" : "<<Project name>>",
     "s3" : {
-        "bucket-name": {
+        "<<Bucket name>>": {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
-        },
-        "another-bucket": {}
+        }
     }
     "dynamodb" : {
-        "table-name" : {
+        "<<Table name>>" : {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
             "hash_key_name" : "<<Hash key name>>",
             "read_capacity" : "<<Read capacity (defaults to 5 if undefined)>>",
             "write_capacity" : "<<Write capacity (defaults to 5 if undefined)>>"
+        }
+    },
+    "mysql" : {
+        "<<Schema name>>" : {
+            "schema_file" : "<<Name of the schema file for this database.  Must be in the same directory as this config file>>",
+            "users" : {
+                "<<User name>>" : {
+                    "privileges" : "<<Privileges to give this user>>"
+                }
+            }
         }
     }
 }

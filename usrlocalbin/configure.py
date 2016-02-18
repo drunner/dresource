@@ -38,7 +38,7 @@ if sys.argv[1] == 'aws':
 elif sys.argv[1] == 'rds':
    config['rds'] = {}
    config['rds']['host'] = sys.argv[2]
-   config['rds']['username'] = sys.argv[3]
+   config['rds']['user'] = sys.argv[3]
    config['rds']['password'] = sys.argv[4]
 
 # -------------------------------------------------------------

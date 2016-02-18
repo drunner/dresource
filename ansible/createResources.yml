@@ -36,3 +36,26 @@
         state: "{{ resourceList.dynamodb[item].state }}"
       with_items:
         "{{ resourceList.dynamodb | default([]) }}"
+
+    - name: Configure MySQL Schema
+      mysql_db:
+        name: "{{ item }}"
+        login_host: "{{ resourceList.mysql_schema[item].login_host }}"
+        login_user: "{{ resourceList.mysql_schema[item].login_user }}"
+        login_password: "{{ resourceList.mysql_schema[item].login_password }}"
+        target: "{{ resourceList.mysql_schema[item].schema_file }}"
+        state: "{{ resourceList.mysql_schema[item].state }}"
+      with_items:
+        "{{ resourceList.mysql_schema | default([]) }}"
+
+    - name: Configure MySQL Users
+      mysql_user:
+        name: "{{ item }}"
+        login_host: "{{ resourceList.mysql_user[item].login_host }}"
+        login_user: "{{ resourceList.mysql_user[item].login_user }}"
+        login_password: "{{ resourceList.mysql_user[item].login_password }}"
+        password: "{{ resourceList.mysql_user[item].password }}"
+        priv: "{{ resourceList.mysql_user[item].privileges }}"
+        state: "{{ resourceList.mysql_user[item].state }}"
+      with_items:
+        "{{ resourceList.mysql_user | default([]) }}"
