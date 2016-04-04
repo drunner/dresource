@@ -1,0 +1,6 @@
+version: '2'
+
+volumes:
+  config:
+     external:
+        name: "drunner-${SERVICENAME}-config"
