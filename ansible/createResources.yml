@@ -5,7 +5,7 @@
     - config: "{{ lookup('file', '/config/config.json') | from_json }}"
   tasks:
     - name: Build resource list
-      command: buildResourceList.py
+      command: buildresource.py /resources/resourceConfigFile
       register: inputList
       changed_when: False
     
