@@ -1,11 +1,9 @@
 ---
 - hosts: localhost
   connection: local
-  vars:
-    - config: "{{ lookup('file', '/config/config.json') | from_json }}"
   tasks:
     - name: Build resource list
-      command: buildresource.py /resources/resourceConfigFile
+      command: buildResourceList.py
       register: inputList
       changed_when: False
     
@@ -15,8 +13,6 @@
     
     - name: Configure S3 Buckets
       s3_bucket:
-        aws_access_key: "{{ config.aws.aws_access_key }}"
-        aws_secret_key: "{{ config.aws.aws_secret_key }}"
         name: "{{ item }}"
         region: "{{ resourceList.s3[item].region }}"
         state: "{{ resourceList.s3[item].state }}"
@@ -26,8 +22,6 @@
 
     - name: Configure DynamoDB Tables
       dynamodb_table:
-        aws_access_key: "{{ config.aws.aws_access_key }}"
-        aws_secret_key: "{{ config.aws.aws_secret_key }}"
         name: "{{ item }}"
         region: "{{ resourceList.dynamodb[item].region }}"
         hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"

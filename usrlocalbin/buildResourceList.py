@@ -14,25 +14,18 @@ from os import urandom
 # -------------------------------------------------------------
 # Arguments
 # -------------------------------------------------------------
-if len(sys.argv) != 1:
-   print "buildResourceList.py"
+if len(sys.argv) != 1 or os.environ.get('RESOURCE_USERNAME') == None or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
+   print "buildresourceList.py"
+   print "Requires environment variables RESOURCE_USERNAME, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
+   print "optional environment variables MYSQL_HOST, MYSQL_USER and MYSQL_PASSWORD\n"
    sys.exit()
 
-configFilename = '/config/config.json'
-resourceConfigFilename = '/resources/resources.cfg'
+resourceConfigFilename = '/resources/resourceConfigFile'
    
 # -------------------------------------------------------------
 # Load Configuration
 # -------------------------------------------------------------
-config = {}
-if not os.path.isfile(configFilename):
-   print "dresource needs to be configured";
-   sys.exit()
-
-with open(configFilename) as config_file:    
-    config = json.load(config_file)
-
-username = config['aws']['username']
+username = os.environ.get('RESOURCE_USERNAME')
 if username == 'PRODUCTION':
    username = ''
 else:
@@ -105,17 +98,17 @@ if 'dynamodb' in resourceConfig:
 
 # Build dictionary of required MySQL Schema
 if 'mysql' in resourceConfig:
-   if not 'mysql' in config:
-      die 'dresource is not configured to control mysql'
+   if os.environ.get('MYSQL_HOST') == None or os.environ.get('MYSQL_USER') == None or os.environ.get('MYSQL_PASSWORD') == None:
+      raise Exception('dresource is not configured to control mysql')
       
    for schemaName in resourceConfig['mysql']:
       # Generate full name
       longName = prefix + schemaName
       # Set dictionary values
       resources['mysql_schema'][longName] = {}
-      resources['mysql_schema'][longName]['login_host'] = config['mysql']['host']
-      resources['mysql_schema'][longName]['login_user'] = config['mysql']['user']
-      resources['mysql_schema'][longName]['login_password'] = config['mysql']['password']
+      resources['mysql_schema'][longName]['login_host'] = os.environ.get('MYSQL_HOST')
+      resources['mysql_schema'][longName]['login_user'] = os.environ.get('MYSQL_USER')
+      resources['mysql_schema'][longName]['login_password'] = os.environ.get('MYSQL_PASSWORD')
       resources['mysql_schema'][longName]['state'] = 'present'
       resources['mysql_schema'][longName]['schema_file'] = resourceConfig['mysql'][schemaName]['schema_file']
       
@@ -137,9 +130,9 @@ if 'mysql' in resourceConfig:
             
             # Set dictionary values
             resources['mysql_user'][longName] = {}
-            resources['mysql_user'][longName]['login_host'] = config['mysql']['host']
-            resources['mysql_user'][longName]['login_user'] = config['mysql']['user']
-            resources['mysql_user'][longName]['login_password'] = config['mysql']['password']
+            resources['mysql_user'][longName]['login_host'] = os.environ.get('MYSQL_HOST')
+            resources['mysql_user'][longName]['login_user'] = os.environ.get('MYSQL_USER')
+            resources['mysql_user'][longName]['login_password'] = os.environ.get('MYSQL_PASSWORD')
             resources['mysql_user'][longName]['state'] = 'present'
             resources['mysql_user'][longName]['password'] = password
             resources['mysql_user'][longName]['privileges'] = resourceConfig['mysql'][schemaName]['users'][userName]['privileges']
@@ -157,7 +150,7 @@ if 'mysql' in resourceConfig:
 # -------------------------------------------------------------
 
 # Use list of existing buckets to work out what to delete
-s3Conn = S3Connection(config['aws']['aws_access_key'], config['aws']['aws_secret_key'])
+s3Conn = S3Connection(os.environ.get('AWS_ACCESS_KEY_ID'), os.environ.get('AWS_SECRET_ACCESS_KEY'))
 existingBuckets = s3Conn.get_all_buckets()
 for bucket in existingBuckets:
    if re.match(prefix, bucket.name):
@@ -172,8 +165,8 @@ for bucket in existingBuckets:
 for region in regions:
    dyConn = boto.dynamodb2.connect_to_region(
            region,
-           aws_access_key_id = config['aws']['aws_access_key'],
-           aws_secret_access_key = config['aws']['aws_secret_key'])
+           aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID'),
+           aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY'))
    existingTables = dyConn.list_tables()
    for table in existingTables["TableNames"]:
       if re.match(prefix, table):

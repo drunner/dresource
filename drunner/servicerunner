@@ -38,9 +38,9 @@ SYNOPSIS
    ${CODE_S}${SERVICENAME} help${CODE_E}
       This help.
    
-   ${CODE_S}${SERVICENAME} configure aws USERNAME AWS_ACCESS_KEY AWS_SECRET_KEY or configure mysql HOST USERNAME PASSWORD${CODE_E}
-      Configure dResource.
-  
+   ${CODE_S}RESOURCE_USERNAME=? AWS_ACCESS_KEY_ID=? AWS_SECRET_ACCESS_KEY=? MYSQL_HOST=? MYSQL_USER=? MYSQL_PASSWORD=? ${SERVICENAME} configure${CODE_E}
+      Configure dResource.  Miss out MYSQL_* if you don't need them.
+
    ${CODE_S}${SERVICENAME} create CONFIGURATION_PATH${CODE_E}
       Creates and updates resources specified in CONFIGURATION_PATH/resource.cfg.
       Also deletes any resources that were created but are no longer specified.
@@ -85,26 +85,29 @@ function main {
          #--- custom commands
 
          configure)
-            [ ! -z "${USERNAME:-}" ] || die "Username not found, please run ${CODE_S}USERNAME=? AWS_ACCESS_KEY=? AWS_SECRET_KEY=? ${SERVICENAME} configure${CODE_E}"
-            [ ! -z "${AWS_ACCESS_KEY:-}" ] || die "AWS Access Key not found, please run ${CODE_S}USERNAME=? AWS_ACCESS_KEY=? AWS_SECRET_KEY=? ${SERVICENAME} configure${CODE_E}"
-            [ ! -z "${AWS_SECRET_KEY:-}" ] || die "AWS Secret Key not found, please run ${CODE_S}USERNAME=? AWS_ACCESS_KEY=? AWS_SECRET_KEY=? ${SERVICENAME} configure${CODE_E}"
+            [ ! -z "${RESOURCE_USERNAME:-}" ] || die "RESOURCE_USERNAME not found, please run ${CODE_S}RESOURCE_USERNAME=? AWS_ACCESS_KEY_ID=? AWS_SECRET_ACCESS_KEY=? ${SERVICENAME} configure${CODE_E}"
+            [ ! -z "${AWS_ACCESS_KEY_ID:-}" ] || die "AWS_ACCESS_KEY_ID not found, please run ${CODE_S}RESOURCE_USERNAME=? AWS_ACCESS_KEY_ID=? AWS_SECRET_ACCESS_KEY=? ${SERVICENAME} configure${CODE_E}"
+            [ ! -z "${AWS_SECRET_ACCESS_KEY:-}" ] || die "AWS_SECRET_ACCESS_KEY not found, please run ${CODE_S}RESOURCE_USERNAME=? AWS_ACCESS_KEY_ID=? AWS_SECRET_ACCESS_KEY=? ${SERVICENAME} configure${CODE_E}"
 
-            save_environment "USERNAME" "${USERNAME}"
-            save_environment "AWS_ACCESS_KEY" "${AWS_ACCESS_KEY}"
-            save_environment "AWS_SECRET_KEY" "${AWS_SECRET_KEY}"
+            [ -z "${RESOURCE_USERNAME:-}" ] || save_environment "RESOURCE_USERNAME" "${RESOURCE_USERNAME}"
+            [ -z "${AWS_ACCESS_KEY_ID:-}" ] || save_environment "AWS_ACCESS_KEY_ID" "${AWS_ACCESS_KEY_ID}"
+            [ -z "${AWS_SECRET_ACCESS_KEY:-}" ] ||  save_environment "AWS_SECRET_ACCESS_KEY" "${AWS_SECRET_ACCESS_KEY}"
+            [ -z "${MYSQL_HOST:-}" ] ||  save_environment "MYSQL_HOST" "${MYSQL_HOST}"
+            [ -z "${MYSQL_USER:-}" ] ||  save_environment "MYSQL_USER" "${MYSQL_USER}"
+            [ -z "${MYSQL_PASSWORD:-}" ] ||  save_environment "MYSQL_PASSWORD" "${MYSQL_PASSWORD}"
             ;;
-            
+
          create)
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
             FILE=$(realpath $1)
-            RESOURCE_FILE="$FILE" docker-compose -p "${SERVICENAME}" run --rm -T "--user=\"$(id -u):$(id -g)\"" \
-                  dresource bash -c "ansible-playbook -i /ansible/inventory /ansible/createResources.yml"
+            RESOURCE_FILE="$FILE" docker-compose -p "${SERVICENAME}" run --rm -T \
+                  dresource bash -c "run.sh createResources.yml"
            ;;
            
          delete)
             [ "$#" -eq 1 ] || die "dresource delete RESOURCE_FILE"
-            RESOURCE_FILE="${1}" docker-compose -p "${SERVICENAME}" run --rm -T "--user=\"$(id -u):$(id -g)\"" \
-                  dresource bash -c "ansible-playbook -i /ansible/inventory /ansible/deleteResources.yml"
+            RESOURCE_FILE="${1}" docker-compose -p "${SERVICENAME}" run --rm -T \
+                  dresource bash -c "run.sh deleteResources.yml"
            ;;
             
          #--- unrecognised commands

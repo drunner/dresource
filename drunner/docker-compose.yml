@@ -4,9 +4,9 @@ services:
    dresource:
       image: drunner/dresource
       environment:
-         - USERNAME
-         - AWS_ACCESS_KEY
-         - AWS_SECRET_KEY
+         - RESOURCE_USERNAME
+         - AWS_ACCESS_KEY_ID
+         - AWS_SECRET_ACCESS_KEY
       volumes:
          - "${RESOURCE_FILE}:/resources/resourceConfigFile"
       network_mode: "bridge"

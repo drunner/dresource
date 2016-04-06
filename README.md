@@ -5,7 +5,8 @@ dService for creating resources (AWS etc)
 
 ```
 drunner install drunner/dresource 
-USERNAME=? AWS_ACCESS_KEY=? AWS_SECRET_KEY=? dresource configure
+RESOURCE_USERNAME=? AWS_ACCESS_KEY_ID=? AWS_SECRET_ACCESS_KEY=? MYSQL_HOST=? MYSQL_USER=? MYSQL_PASSWORD=? dresource configure
+   (Miss out MYSQL_* parameters if you don't need them)
 dresource create <<Path to Resource List File>>
 ```
 The Resource List File is a JSON file with the following format.  Note that MySQL support is untested and unlikely to work at this point:
@@ -16,10 +17,10 @@ The Resource List File is a JSON file with the following format.  Note that MySQ
         "<<Bucket name>>": {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
         }
-    }
+    },
     "dynamodb" : {
         "<<Table name>>" : {
-            "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>"
+            "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>",
             "hash_key_name" : "<<Hash key name>>",
             "read_capacity" : "<<Read capacity (defaults to 5 if undefined)>>",
             "write_capacity" : "<<Write capacity (defaults to 5 if undefined)>>"
@@ -49,9 +50,9 @@ The AWS IAM User is expected to have the following policy:
                 "dynamodb:*"
             ],
             "Resource": [
-                "arn:aws:s3:::<<USERNAME>>-*",
-                "arn:aws:s3:::<<USERNAME>>-*/*",
-                "arn:aws:dynamodb:*:*:table/<<USERNAME>>-*"
+                "arn:aws:s3:::<<RESOURCE_USERNAME>>-*",
+                "arn:aws:s3:::<<RESOURCE_USERNAME>>-*/*",
+                "arn:aws:dynamodb:*:*:table/<<RESOURCE_USERNAME>>-*"
             ]
         },
         {
