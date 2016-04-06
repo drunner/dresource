@@ -13,13 +13,13 @@ import os
 # -------------------------------------------------------------
 # Arguments
 # -------------------------------------------------------------
-if len(sys.argv) != 3 or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
-   print "buildresource.py <USERNAME> <CONFIG FILENAME> <OUTPUT FILENAME>"
-   print "Expects environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
+if len(sys.argv) != 2 or os.environ.get('USERNAME') == None or os.environ.get('AWS_ACCESS_KEY_ID') == None or os.environ.get('AWS_SECRET_ACCESS_KEY') == None:
+   print "buildresource.py <CONFIG FILENAME>"
+   print "Expects environment variables USERNAME, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY\n"
    sys.exit()
    
-username = sys.argv[1]
-configFilename = sys.argv[2]
+username = os.environ.get('USERNAME')
+configFilename = sys.argv[1]
 
 if username == 'PRODUCTION':
    username = ''

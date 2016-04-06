@@ -4,8 +4,8 @@ dService for creating resources (AWS etc)
 ## Example usage with drunner
 
 ```
-drunner install infmon/dresource 
-dresource configure <<Username>> <<AWS Access key>> <<AWS Secret key>>
+drunner install drunner/dresource 
+USERNAME=? AWS_ACCESS_KEY=? AWS_SECRET_KEY=? dresource configure
 dresource create <<Path to Resource List File>>
 ```
 The Resource List File is a JSON file with the following format:

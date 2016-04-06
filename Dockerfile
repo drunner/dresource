@@ -17,6 +17,3 @@ RUN chmod a+rx -R /usr/local/bin  &&  \
 
 # lock in druser.
 USER druser
-
-# expose volume
-VOLUME /config /resources
