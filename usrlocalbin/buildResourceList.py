@@ -44,7 +44,7 @@ resources['dynamodb'] = {}
 resources['mysql_schema'] = {}
 resources['mysql_user'] = {}
 
-shortResources = {}
+shortResources = []
 
 regions = {}
 
@@ -68,11 +68,7 @@ if 's3' in resourceConfig:
       regions[resources['s3'][longName]['region']] = True
       
       # Record short form of resource for writing out
-      if not 's3' in shortResources:
-         shortResources['s3'] = {}
-      shortResources['s3'][bucketName] = {}
-      shortResources['s3'][bucketName]['name'] = longName
-      shortResources['s3'][bucketName]['region'] = resources['s3'][longName]['region']
+      shortResources.append('s3:'+bucketName+':'+longName+':'+resources['s3'][longName]['region'])
 
 # Build dictionary of required DynamoDB tables
 if 'dynamodb' in resourceConfig:
@@ -90,11 +86,7 @@ if 'dynamodb' in resourceConfig:
       regions[resources['dynamodb'][longName]['region']] = True
       
       # Record short form of resource for writing out
-      if not 'dynamodb' in shortResources:
-         shortResources['dynamodb'] = {}
-      shortResources['dynamodb'][tableName] = {}
-      shortResources['dynamodb'][tableName]['name'] = longName
-      shortResources['dynamodb'][tableName]['region'] = resources['dynamodb'][longName]['region']
+      shortResources.append('dynamodb:'+tableName+':'+longName+':'+resources['dynamodb'][longName]['region'])
 
 # Build dictionary of required MySQL Schema
 if 'mysql' in resourceConfig:
@@ -113,10 +105,7 @@ if 'mysql' in resourceConfig:
       resources['mysql_schema'][longName]['schema_file'] = resourceConfig['mysql'][schemaName]['schema_file']
       
       # Record short form of resource for writing out
-      if not 'mysql_schema' in shortResources:
-         shortResources['mysql_schema'] = {}
-      shortResources['mysql_schema'][schemaName] = {}
-      shortResources['mysql_schema'][schemaName]['name'] = longName
+      shortResources.append('mysql_schema:'+schemaName+':'+longName)
       
       # Build dictionary of require MySQL Users
       if 'users' in resourceConfig['mysql'][schemaName]:
@@ -138,11 +127,7 @@ if 'mysql' in resourceConfig:
             resources['mysql_user'][longName]['privileges'] = resourceConfig['mysql'][schemaName]['users'][userName]['privileges']
       
             # Record short form of resource for writing out
-            if not 'mysql_user' in shortResources:
-               shortResources['mysql_user'] = {}
-            shortResources['mysql_user'][schemaName] = {}
-            shortResources['mysql_user'][schemaName]['name'] = longName
-            shortResources['mysql_user'][schemaName]['password'] = password
+            shortResources.append('mysql_user:'+schemaName+':'+longName+':'+password)
       
 
 # -------------------------------------------------------------
@@ -171,13 +156,15 @@ for region in regions:
    for table in existingTables["TableNames"]:
       if re.match(prefix, table):
          if (not table in resources['dynamodb']):
-            resources['dynamodb'][table] = { 'state' : 'absent' }
+            resources['dynamodb'][table] = { 'state' : 'absent', 'hash_key_name' : 'whatever', 'region' : region }
 
 # -------------------------------------------------------------
 # Write out smaller list for app configuration
 # -------------------------------------------------------------
-with open('/tmp/resourceOutput.json', 'w') as outfile:
-    json.dump(shortResources, outfile, indent=4, separators=(',', ': '))
+
+with open('/tmp/resourceOutput', 'w') as outfile:
+   for item in shortResources:
+      outfile.write("%s\n" % item)
 
 # -------------------------------------------------------------
 # Print out full list for ansible to use

@@ -19,7 +19,7 @@ The Resource List File is a JSON file with the following format.  Note that MySQ
         }
     },
     "dynamodb" : {
-        "<<Table name>>" : {
+        "<<Table name.  WARNING: FOr some reason, table names must end in 's'.  i.e. they must be plural>>" : {
             "region" : "<<AWS Region (defaults to us-east-1 if undefined)>>",
             "hash_key_name" : "<<Hash key name>>",
             "read_capacity" : "<<Read capacity (defaults to 5 if undefined)>>",

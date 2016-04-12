@@ -24,6 +24,7 @@ MYDIR=$( dirname "$(readlink -f "$0")" )
 source "$MYDIR/utils.sh"
 
 # we want to be in the same directory as docker-compose.yml for docker-compose to work nicely.
+WORKDIR="$(pwd)"
 cd $MYDIR
 
 #------------------------------------------------------------------------------------
@@ -98,15 +99,22 @@ function main {
             ;;
 
          create)
+            cd $WORKDIR
             [ "$#" -eq 1 ] || die "dresource create RESOURCE_FILE"
             FILE=$(realpath $1)
+            
+            cd $MYDIR
             RESOURCE_FILE="$FILE" docker-compose -p "${SERVICENAME}" run --rm -T \
                   dresource bash -c "run.sh createResources.yml"
            ;;
            
          delete)
+            cd $WORKDIR
             [ "$#" -eq 1 ] || die "dresource delete RESOURCE_FILE"
-            RESOURCE_FILE="${1}" docker-compose -p "${SERVICENAME}" run --rm -T \
+            FILE=$(realpath $1)
+            
+            cd $MYDIR
+            RESOURCE_FILE="$FILE" docker-compose -p "${SERVICENAME}" run --rm -T \
                   dresource bash -c "run.sh deleteResources.yml"
            ;;
             
