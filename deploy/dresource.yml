@@ -1,0 +1,18 @@
+---
+- hosts: "{{ host_identifier }}"
+  user: admin
+  become: root
+  gather_facts: false
+  tasks:
+    - name: Install dResource
+      dservice:
+        state: latest
+        name: dresource
+        image: drunner/dresource
+        install_config:
+          - dresource configure
+        environment:
+          RESOURCE_USERNAME: "{{ resource_username }}"
+          AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+          AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+          

@@ -50,9 +50,9 @@ The AWS IAM User is expected to have the following policy:
                 "dynamodb:*"
             ],
             "Resource": [
-                "arn:aws:s3:::<<RESOURCE_USERNAME>>-*",
-                "arn:aws:s3:::<<RESOURCE_USERNAME>>-*/*",
-                "arn:aws:dynamodb:*:*:table/<<RESOURCE_USERNAME>>-*"
+                "arn:aws:s3:::<<RESOURCE_USERNAME>>-<<PROJECTNAME>>-*",
+                "arn:aws:s3:::<<RESOURCE_USERNAME>>-<<PROJECTNAME>>-*/*",
+                "arn:aws:dynamodb:*:*:table/<<RESOURCE_USERNAME>>-<<PROJECTNAME>>-*"
             ]
         },
         {
