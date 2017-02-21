@@ -27,7 +27,7 @@
         hash_key_name: "{{ resourceList.dynamodb[item].hash_key_name }}"
         hash_key_type: "{{ resourceList.dynamodb[item].hash_key_type | default('STRING') }}"
         range_key_name: "{{ resourceList.dynamodb[item].range_key_name | default(None) }}"
-        range_key_type: "{{ resourceList.dynamodb[item].range_key_type | default(None) }}"
+        range_key_type: "{{ resourceList.dynamodb[item].range_key_type | default('STRING') }}"
         read_capacity: "{{ resourceList.dynamodb[item].read_capacity | default(5) }}"
         write_capacity: "{{ resourceList.dynamodb[item].write_capacity | default(5) }}"
         state: "{{ resourceList.dynamodb[item].state }}"
