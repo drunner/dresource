@@ -1,0 +1,24 @@
+#!/bin/bash
+DOCKERHUB_USERNAME="${1}"
+DOCKERHUB_PASSWORD="${2}"
+IMAGETAG="${3}"
+
+docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
+echo "Building tag ${IMAGETAG}"
+exec 5>&1
+
+function buildAndPush {
+   DOCKEROUTPUT=$(docker build -t ${1} ${2} | tee /dev/fd/5)
+   ID=$(echo ${DOCKEROUTPUT} | tail -1 | sed 's/.*Successfully built \(.*\)$/\1/')
+   echo "Tagging ${ID} as ${1}:${IMAGETAG}"
+   docker tag ${ID} ${1}:${IMAGETAG}
+   echo "Pushing ${1}:${IMAGETAG}"
+   docker push ${1}:${IMAGETAG}
+}
+
+#######################################################################################
+# ADD BUILD COMMANDS BELOW (buildAndPush <container name> <work directory>)           #
+#   e.g. buildAndPush kuraclould/my-project .                                         #
+#######################################################################################
+
+buildAndPush drunner/dresource .
